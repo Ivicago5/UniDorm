@@ -1,2 +1,2 @@
 # UniDorm
-Application for Accomodation in Slovenia
+Application for student Accomodation in Slovenia
