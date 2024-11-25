@@ -5,11 +5,9 @@ class ChatPage extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: const Center(
-        child: Text(
-          "Chat Page"
-        ),
+    return const Center(
+      child: Text(
+        "Chat Page"
       ),
     );
   }
