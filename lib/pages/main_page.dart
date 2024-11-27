@@ -15,7 +15,7 @@ class _MainPageState extends State<MainPage> {
 
   final List<Widget> pages = [
     const NewsletterPage(),
-    const HomePage(),
+    AccommodationPage(),
     const ChatPage(),
   ];
   int currentPage = 0;
