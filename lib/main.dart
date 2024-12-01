@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Uni Dorm',
+      title: 'UniDorm',
       theme: ThemeData(
         textTheme: GoogleFonts.gabaritoTextTheme(textTheme),
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),

@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 
@@ -47,7 +46,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Sign Up"),),
+      appBar: AppBar(title: const Text("Sign Up"), centerTitle: true,),
       body: Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
