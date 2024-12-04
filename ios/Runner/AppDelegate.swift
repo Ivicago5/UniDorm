@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import fk_user_agent
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {

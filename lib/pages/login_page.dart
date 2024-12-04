@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:unidorm/auth/auth_service.dart';
+import 'package:unidorm/pages/profile_page.dart';
 import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -15,18 +16,26 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
 
   void login() async {
-    final email = _emailController.text;
-    final password = _passwordController.text;
+  final emailOrUsername = _emailController.text;
+  final password = _passwordController.text;
 
-    try {
-      await authService.signInWithEmailPassword(email, password);
-    } catch (error) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Error: $error")));
-      }
+  try {
+    await authService.signInWithEmailPassword(emailOrUsername, password);
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ProfilePage()),
+      );
+    }
+  } catch (error) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $error")),
+      );
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

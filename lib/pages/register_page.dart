@@ -15,12 +15,14 @@ class _RegisterPageState extends State<RegisterPage> {
   final authService = AuthService();
 
   //text controllers
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
   //sign up button pressed
   void signUp() async {
+    final username = _usernameController.text;
     final email = _emailController.text;
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
@@ -33,9 +35,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
     //attempt sign up 
     try{
-      await authService.signUpWithEmailPassword(email, password);
-
-      Navigator.pop(context);
+      await authService.signUpWithEmailPassword(username ,email, password);
+      if (mounted) {
+        Navigator.pop(context);
+      }
     } catch (error) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $error")));
@@ -73,24 +76,42 @@ class _RegisterPageState extends State<RegisterPage> {
             height: 44.0,
           ),
           TextField(
-            keyboardType: TextInputType.emailAddress,
-            decoration: InputDecoration(
-              labelText: "Email",
-              prefixIcon:Icon(Icons.mail,color: Colors.black,)
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                labelText: "Email",
+                prefixIcon: Icon(
+                  Icons.mail,
+                  color: Colors.black,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.blueAccent, width: 2.0),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                ),
+              ),
+              controller: _emailController,
             ),
-            controller: _emailController,
-          ),
           const SizedBox(
             height: 26.0,
           ),
           TextField(
-            obscureText: true,
-            decoration: InputDecoration(
-              labelText: "Password",
-              prefixIcon: Icon(Icons.lock, color: Colors.black,)
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: "Password",
+                prefixIcon: Icon(
+                  Icons.lock,
+                  color: Colors.black,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.blueAccent, width: 2.0),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                ),
+              ),
+              controller: _passwordController,
             ),
-            controller: _passwordController,
-          ),
           const SizedBox(
             height: 26.0,
           ),
@@ -98,7 +119,16 @@ class _RegisterPageState extends State<RegisterPage> {
             obscureText: true,
             decoration: InputDecoration(
               labelText: "Confirm Password",
-              prefixIcon: Icon(Icons.lock, color: Colors.black,)
+              prefixIcon: Icon(
+                  Icons.lock,
+                  color: Colors.black,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.blueAccent, width: 2.0),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                ),
             ),
             controller: _confirmPasswordController,
           ),
