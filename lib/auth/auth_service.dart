@@ -10,17 +10,25 @@ class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   
-  // Method to fetch IP address and user agent
-  
-  Future<String> getIpAddress() async {
-  final response = await http.get(Uri.parse('https://api.ipify.org?format=json'));
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    return data['ip'];
-  } else {
-    throw Exception('Failed to load IP address');
+  // Validate the session token
+  Future<bool> isSessionTokenValid(String? sessionToken) async {
+    if (sessionToken == null) return false;
+
+    try {
+      final session = await _supabase
+          .from('user_sessions')
+          .select()
+          .eq('session_token', sessionToken)
+          .maybeSingle();
+
+      if (session == null) return false;
+
+      final expiryDate = DateTime.parse(session['expires_at']);
+      return expiryDate.isAfter(DateTime.now());
+    } catch (e) {
+      return false;
+    }
   }
-}
 
   // Save session token to secure storage
   Future<void> saveSessionToken(String token) async {
@@ -37,13 +45,28 @@ class AuthService {
     await _secureStorage.delete(key: 'session_token');
   }
 
+  // Method to fetch IP address
+
+  Future<String> getIpAddress() async {
+    final response = await http.get(Uri.parse('https://api.ipify.org?format=json'));
+
+    if (response.statusCode == 200) {
+
+      final data = jsonDecode(response.body);
+      return data['ip'];
+
+    } else {
+
+      throw Exception('Failed to load IP address');
+    }
+  }
   //Sign in with email and password
-  Future<void> signInWithEmailPassword(String emailOrUsername, String password) async {
+  Future<void> signInWithEmailPassword(String email, String password) async {
   // Fetch user by email or username
   final user = await _supabase
       .from('users')
       .select()
-      .or('email.eq.$emailOrUsername,username.eq.$emailOrUsername')
+      .eq('email', email)
       .maybeSingle();
 
   if (user == null) {
@@ -56,21 +79,35 @@ class AuthService {
     throw Exception('Invalid credentials.');
   }
 
-  final ipAddress = await getIpAddress();
 
-  // Generate session token (UUID or custom logic)
-  final sessionToken = DateTime.now().millisecondsSinceEpoch.toString();
-    await _supabase.from('user_sessions').insert({
-      'user_id': user['id'],
-      'session_token': sessionToken,
-      'ip_address': ipAddress,
-      'expires_at': DateTime.now().add(Duration(days: 7)).toIso8601String(),
-    });
+  final existingSession = await _supabase
+        .from('user_sessions')
+        .select()
+        .eq('user_id', user['id'])
+        .maybeSingle();
+
+  String sessionToken;
+
+   if (existingSession != null && await isSessionTokenValid(existingSession['session_token'])) {
+      // Reuse existing valid session token
+      sessionToken = existingSession['session_token'];
+    } else {
+      // Generate a new session token
+      sessionToken = DateTime.now().millisecondsSinceEpoch.toString();
+      await _supabase.from('user_sessions').insert({
+        'user_id': user['id'],
+        'session_token': sessionToken,
+        'ip_address': await getIpAddress(),
+        'expires_at': DateTime.now().add(const Duration(days: 7)).toIso8601String(),
+      });
+    }
+
+    await saveSessionToken(sessionToken);
 }
   
   
   //Sign up with email and password
-  Future<void> signUpWithEmailPassword(String username, String email, String password) async {
+  Future<void> signUpWithEmailPassword( String email, String password) async {
   // Hash the password using bcrypt
   final hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
@@ -78,7 +115,7 @@ class AuthService {
   final existingUser = await _supabase
       .from('users')
       .select()
-      .or('email.eq.$email,username.eq.$username')
+      .eq('email', email)
       .maybeSingle();
 
   if (existingUser != null) {
@@ -86,12 +123,29 @@ class AuthService {
   }
 
   // Insert the user into the 'users' table
-  await _supabase.from('users').insert({
-    'username': username,
+  final user = await _supabase.from('users').insert({
     'email': email,
     'password_hash': hashedPassword,
     'created_at': DateTime.now().toIso8601String(),
+    'email_is_confirmed': false, // Default is false
+  }).select().maybeSingle();
+
+  if (user == null) {
+    throw Exception('Failed to create user.');
+  }
+
+  // Generate a confirmation token 
+  final confirmationToken = DateTime.now().millisecondsSinceEpoch.toString();
+
+
+  await _supabase.from('email_confirmations').insert({
+    'user_id': user['id'],
+    'token': confirmationToken,
+    'created_at': DateTime.now().toIso8601String(),
   });
+
+  //TODO: Send confirmation email
+
 }
 
   //Sign out
