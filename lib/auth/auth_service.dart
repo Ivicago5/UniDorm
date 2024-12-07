@@ -127,7 +127,7 @@ class AuthService {
     'email': email,
     'password_hash': hashedPassword,
     'created_at': DateTime.now().toIso8601String(),
-    'email_is_confirmed': false, // Default is false
+    'is_email_confirmed': false, // Default is false
   }).select().maybeSingle();
 
   if (user == null) {
