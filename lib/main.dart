@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:unidorm/auth/auth_gate.dart';
 import 'package:unidorm/pages/login_page.dart';
 import 'package:unidorm/pages/profile_page.dart';
+import 'package:unidorm/pages/oglasi_page.dart';
 
 void main() async {
   await Supabase.initialize(
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginPage(),
         '/profile': (context) => const ProfilePage(),
+        '/oglasi': (context)=> const Oglasi(),
       },
       debugShowCheckedModeBanner: false,
       title: 'UniDorm',
