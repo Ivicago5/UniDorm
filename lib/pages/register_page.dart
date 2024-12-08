@@ -15,14 +15,12 @@ class _RegisterPageState extends State<RegisterPage> {
   final authService = AuthService();
 
   //text controllers
-  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
   //sign up button pressed
   void signUp() async {
-    final username = _usernameController.text;
     final email = _emailController.text;
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
